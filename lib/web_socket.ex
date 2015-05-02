@@ -5,7 +5,7 @@ defmodule WebSocket do
     import Supervisor.Spec, warn: false
 
     children = []
-    plug = Router
+    plug = WebSocket.Router
     opts = []
     dispatch = build_dispatch(plug, opts)
 
@@ -15,9 +15,11 @@ defmodule WebSocket do
     Supervisor.start_link(children, opts)
   end
 
+  # to be extracted to a util module
   defp build_dispatch(plug, opts) do
     opts = plug.init(opts)
-    [{:_, [ {"/echo", WsHandler, {WsController, :echo}},
+    [{:_, [ {"/echo", WebSocket.Cowboy.Handler, {WebSocket.EchoController, :echo}},
+            {"/topic", WebSocket.Cowboy.Handler, {WebSocket.TopicController, :handle}},
             {:_, Plug.Adapters.Cowboy.Handler, {plug, opts}} ]}]
   end
 end

@@ -1,5 +1,6 @@
-defmodule WsController do
+defmodule WebSocket.EchoController do
   def echo(:init, state) do
+    state = %{state | use_topics: false}
     {:ok, state}
   end
   def echo(:terminate, _state) do

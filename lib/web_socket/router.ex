@@ -1,4 +1,4 @@
-defmodule Router do
+defmodule WebSocket.Router do
   use Plug.Router
 
   plug Plug.Static, at: "/", from: :web_socket
