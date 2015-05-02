@@ -2,6 +2,8 @@ defmodule WebSocket.Cowboy.Handler do
   # for Cowboy WebSocket connections
   @behaviour :cowboy_websocket_handler
   @connection Plug.Adapters.Cowboy.Conn
+  alias WebSocket.Events
+  alias WebSocket.Message
 
   defmodule State do
     defstruct conn: nil,
@@ -10,26 +12,25 @@ defmodule WebSocket.Cowboy.Handler do
               use_topics: true
   end
 
-  defmodule Message do
-    defstruct event: nil, data: nil
-  end
-
   ## Init
 
-  def init(_transport, _req, _opts) do
+  def init(_transport, _req, {_plug, action}) do
+    {:ok, _pid} = Events.start_link(action)
     {:upgrade, :protocol, :cowboy_websocket}
   end
 
   def websocket_init(transport, req, opts) do
     state = @connection.conn(req, transport)
       |> build_state(opts)
+    Events.join(state.action, self)
     args = get_args(:init, state)
     handle_reply req, args, state
   end
 
   ## Handle
 
-  def websocket_handle({:text, msg}, req, state) do
+  def websocket_handle({:text, msg} = event, req, state) do
+    Events.broadcast(state.action, event, self)
     args = get_args(msg, state)
     handle_reply req, args, state
   end
@@ -40,7 +41,13 @@ defmodule WebSocket.Cowboy.Handler do
 
   ## Info
 
-  def websocket_info({:timeout, _ref, msg}, req, state) do
+  def websocket_info({:timeout, _ref, msg} = event, req, state) do
+    Events.broadcast(state.action, event, self)
+    args = get_args(msg, state)
+    handle_reply req, args, state
+  end
+
+  def websocket_info({:text, msg}, req, state) do
     args = get_args(msg, state)
     handle_reply req, args, state
   end
@@ -52,10 +59,12 @@ defmodule WebSocket.Cowboy.Handler do
   ## Terminate
 
   def websocket_terminate(_Reason, _req, state) do
+    Events.leave(state.action, self)
     apply(state.plug, state.action, [:terminate, state])
   end
 
-  def terminate(_reason, _req, _state) do
+  def terminate(_reason, _req, state) do
+    Events.stop(state.action)
     :ok
   end
 
@@ -81,10 +90,7 @@ defmodule WebSocket.Cowboy.Handler do
   end
 
   defp get_payload([event, _, _], payload) do
-    payload = %Message{
-      event: event,
-      data: payload
-    }
+    payload = Message.build(event, payload)
     case Poison.encode(payload) do
       {:ok, result} -> result
       _             -> payload
