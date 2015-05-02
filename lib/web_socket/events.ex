@@ -6,7 +6,7 @@ defmodule WebSocket.Events do
   def start_link(ref) do
     case GenEvent.start_link(name: ref) do
       {:ok, pid} ->
-        GenEvent.add_handler(ref, WebSocket.Events, [])
+        GenEvent.add_handler(ref, __MODULE__, [])
         {:ok, pid}
       {:error, {:already_started, pid}} ->
         {:ok, pid}
