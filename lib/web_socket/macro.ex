@@ -8,9 +8,8 @@ defmodule WebSocket.Macro do
   end
 
   defmacro __before_compile__(env) do
-    routes = Module.get_attribute(env.module, :ws_routes)
     quote do
-      def ws_routes, do: unquote(routes)
+      unquote(run(env))
     end
   end
 
@@ -20,8 +19,19 @@ defmodule WebSocket.Macro do
     end
   end
 
+  defp run(env) do
+    plug   = env.module
+    routes = Module.get_attribute(env.module, :ws_routes)
+    quote do
+      def run(opts \\ []) do
+        opts = unquote(plug).init(opts)
+        dispatch = build_dispatch(unquote(plug), unquote(routes), opts)
+        Plug.Adapters.Cowboy.http unquote(plug), opts, [dispatch: dispatch]
+      end
+    end
+  end
+
   def build_dispatch(plug, routes \\ [], opts \\ []) do
-    # opts = plug.init(opts)
     default = [ {:_, Plug.Adapters.Cowboy.Handler, {plug, opts}} ]
     routes = routes
       |> Enum.reverse
