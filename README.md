@@ -30,6 +30,7 @@ defmodule MyApp.Router do
   use WebSocket.Macro
 
   # WebSocket routes
+  #      route     controller/handler     function & name
   socket "/topic", MyApp.TopicController, :handle
   socket "/echo",  MyApp.EchoController,  :echo
 
@@ -48,6 +49,51 @@ The big part that it plays is the building of a
 dispatch table to pass as an option to Cowboy that
 has an entry for each of your socket routes and a
 catch all for HTTP requests.
+
+### Add the necessary bits to a module
+
+From the topic example:
+
+```elixir
+defmodule MyApp.TopicController do
+  def handle(:init, state) do
+    {:ok, state}
+  end
+  def handle(:terminate, _state) do
+    :ok
+  end
+  def handle("topic:" <> letter, state, data) do
+    payload = %{awesome: "blah #{letter}", 
+                orig: data}
+    {:reply, {:text, payload}, state}
+  end
+end
+```
+
+Currently, the function name needs to be unique
+across all controllers/handlers as its used for
+the Events layer.
+
+### Broadcast from elsewhere
+
+Need to send data out from elsewhere in your app?
+
+```elixir
+# Build your message
+topic = "my_event"
+data  = %{foo: "awesome"}
+mes   = WebSocket.Message.build(topic, data)
+json  = Poison.encode!(mes)
+
+# Pick your destination (from your routes)
+name = :handle
+
+# Send away!
+WebSockets.broadcast!(name, json)
+```
+
+This needs to be nicer, but this is still in
+progress.
 
 ## License
 
