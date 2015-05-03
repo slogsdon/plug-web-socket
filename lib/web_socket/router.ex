@@ -1,6 +1,6 @@
 defmodule WebSocket.Router do
   use Plug.Router
-  use WebSocket.Macro
+  use WebSocket
 
   socket "/topic", WebSocket.TopicController, :handle
   socket "/echo",  WebSocket.EchoController,  :echo

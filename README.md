@@ -27,7 +27,7 @@ application, do something like this:
 ```elixir
 defmodule MyApp.Router do
   use Plug.Router
-  use WebSocket.Macro
+  use WebSocket
 
   # WebSocket routes
   #      route     controller/handler     function & name
