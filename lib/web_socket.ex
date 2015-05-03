@@ -3,7 +3,9 @@ defmodule WebSocket do
 
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
-    children = []
+    children = [
+      worker(WebSocket.Router, [], function: :run)
+    ]
     opts     = [strategy: :one_for_one, 
                 name: WebSocket.Supervisor]
     Supervisor.start_link(children, opts)
