@@ -14,7 +14,7 @@ Run these:
 $ git clone https://github.com/slogsdon/plug-web-socket
 $ cd plug-web-socket
 $ mix deps.get
-$ iex -S mix
+$ iex -S mix run run_examples.exs
 ```
 
 Go here: <http://localhost:4000>.

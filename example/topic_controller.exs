@@ -1,4 +1,4 @@
-defmodule WebSocket.TopicController do
+defmodule TopicController do
   def handle(:init, state) do
     {:ok, state}
   end

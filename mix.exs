@@ -16,8 +16,7 @@ defmodule WebSocket.Mixfile do
   end
 
   def application do
-    [applications: [:logger],
-     mod: {WebSocket.App, []}]
+    [applications: [:logger, :plug, :cowboy, :poison]]
   end
 
   defp deps do

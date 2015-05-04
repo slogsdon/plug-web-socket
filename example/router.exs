@@ -1,9 +1,9 @@
-defmodule WebSocket.Router do
+defmodule Router do
   use Plug.Router
   use WebSocket
 
-  socket "/topic", WebSocket.TopicController, :handle
-  socket "/echo",  WebSocket.EchoController,  :echo
+  socket "/topic", TopicController, :handle
+  socket "/echo",  EchoController,  :echo
 
   plug Plug.Static, at: "/", from: :web_socket
 
