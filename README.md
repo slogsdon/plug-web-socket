@@ -1,4 +1,7 @@
 # WebSocket
+[![Build Status](https://img.shields.io/travis/slogsdon/plug-web-socket.svg?style=flat)](https://travis-ci.org/slogsdon/plug-web-socket)
+[![Coverage Status](https://img.shields.io/coveralls/slogsdon/plug-web-socket.svg?style=flat)](https://coveralls.io/r/slogsdon/plug-web-socket)
+[![Hex.pm Version](http://img.shields.io/hexpm/v/web_socket.svg?style=flat)](https://hex.pm/packages/web_socket)
 
 An exploration into a stand-alone library for
 Plug applications to easily adopt WebSockets.
