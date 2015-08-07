@@ -39,6 +39,11 @@ defmodule MyApp.Router do
 
   # Rest of your router's plugs and routes
   # ...
+
+  def run(opts \\ []) do
+    dispatch = dispatch_table(opts)
+    Plug.Adapters.Cowboy.http __MODULE__, opts, [dispatch: dispatch]
+  end
 end
 ```
 
@@ -66,7 +71,7 @@ defmodule MyApp.TopicController do
     :ok
   end
   def handle("topic:" <> letter, state, data) do
-    payload = %{awesome: "blah #{letter}", 
+    payload = %{awesome: "blah #{letter}",
                 orig: data}
     {:reply, {:text, payload}, state}
   end

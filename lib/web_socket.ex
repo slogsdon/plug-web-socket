@@ -9,7 +9,7 @@ defmodule WebSocket do
 
   defmacro __before_compile__(env) do
     quote do
-      unquote(run(env))
+      unquote(dispatch_table(env))
     end
   end
 
@@ -19,14 +19,13 @@ defmodule WebSocket do
     end
   end
 
-  defp run(env) do
+  defp dispatch_table(env) do
     plug   = env.module
     routes = Module.get_attribute(env.module, :ws_routes)
     quote do
-      def run(opts \\ []) do
+      def dispatch_table(opts \\ []) do
         opts = unquote(plug).init(opts)
-        dispatch = build_dispatch(unquote(plug), unquote(routes), opts)
-        Plug.Adapters.Cowboy.http unquote(plug), opts, [dispatch: dispatch]
+        build_dispatch(unquote(plug), unquote(routes), opts)
       end
     end
   end
