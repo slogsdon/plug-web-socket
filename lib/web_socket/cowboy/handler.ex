@@ -1,34 +1,56 @@
 defmodule WebSocket.Cowboy.Handler do
-  # for Cowboy WebSocket connections
+  @moduledoc """
+  """
+
   @behaviour :cowboy_websocket_handler
   @connection Plug.Adapters.Cowboy.Conn
   alias WebSocket.Events
   alias WebSocket.Message
 
+  @type reply :: tuple
+
   defmodule State do
+    @moduledoc """
+    """
     defstruct conn: nil,
               plug: nil,
               action: nil,
               use_topics: true
+
+    @type t :: %__MODULE__{
+                 conn: Plug.Conn.t,
+                 plug: atom,
+                 action: atom,
+                 use_topics: boolean
+               }
   end
 
   ## Init
 
+  @doc """
+  """
+  @spec init(atom, :cowboy_req.req, {atom, atom}) :: {:upgrade, :protocol, :cowboy_websocket}
   def init(_transport, _req, {_plug, action}) do
     {:ok, _pid} = Events.start_link(action)
     {:upgrade, :protocol, :cowboy_websocket}
   end
 
+  @doc """
+  """
+  @spec websocket_init(atom, :cowboy_req.req, {atom, atom}) :: reply
   def websocket_init(transport, req, opts) do
     state = @connection.conn(req, transport)
       |> build_state(opts)
-    Events.join(state.action, self)
+    Events.subscribe(state.action, self)
     args = get_args(:init, state)
     handle_reply req, args, state
   end
 
   ## Handle
 
+  @doc """
+  """
+  @spec websocket_handle(tuple, :cowboy_req.req, State.t) :: reply
   def websocket_handle({:text, msg} = event, req, state) do
     Events.broadcast(state.action, event, self)
     args = get_args(msg, state)
@@ -41,6 +63,9 @@ defmodule WebSocket.Cowboy.Handler do
 
   ## Info
 
+  @doc """
+  """
+  @spec websocket_info(tuple, :cowboy_req.req, State.t) :: reply
   def websocket_info({:timeout, _ref, msg} = event, req, state) do
     Events.broadcast(state.action, event, self)
     args = get_args(msg, state)
@@ -58,11 +83,17 @@ defmodule WebSocket.Cowboy.Handler do
 
   ## Terminate
 
-  def websocket_terminate(_Reason, _req, state) do
-    Events.leave(state.action, self)
+  @doc """
+  """
+  @spec websocket_terminate(atom | tuple, :cowboy_req.req, State.t) :: :ok
+  def websocket_terminate(_reason, _req, state) do
+    Events.unsubscribe(state.action, self)
     apply(state.plug, state.action, [:terminate, state])
   end
 
+  @doc """
+  """
+  @spec terminate(atom | tuple, :cowboy_req.req, State.t) :: :ok
   def terminate(_reason, _req, state) do
     Events.stop(state.action)
     :ok
@@ -72,8 +103,8 @@ defmodule WebSocket.Cowboy.Handler do
 
   defp build_state(conn, {plug, action}) do
     conn = update_scheme(conn)
-    %State{conn: conn, 
-           plug: plug, 
+    %State{conn: conn,
+           plug: plug,
            action: action}
   end
 

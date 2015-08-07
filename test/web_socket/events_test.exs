@@ -19,22 +19,22 @@ defmodule WebSocket.EventsTest do
     assert stop(@ref) == :ok
   end
 
-  test "join/2" do
+  test "subscribe/2" do
     assert {:ok, _} = start_link(@ref)
-    assert join(@ref, self) == :ok
+    assert subscribe(@ref, self) == :ok
     assert stop(@ref) == :ok
   end
 
-  test "leave/2" do
+  test "unsubscribe/2" do
     assert {:ok, _} = start_link(@ref)
-    assert join(@ref, self) == :ok
-    assert leave(@ref, self) == :ok
+    assert subscribe(@ref, self) == :ok
+    assert unsubscribe(@ref, self) == :ok
     assert stop(@ref) == :ok
   end
 
   test "broadcast/3" do
     assert {:ok, _} = start_link(@ref)
-    assert join(@ref, self) == :ok
+    assert subscribe(@ref, self) == :ok
     assert broadcast(@ref, {:text, "test"}, self) == :ok
     refute_receive {:text, "test"}
     assert stop(@ref) == :ok
@@ -42,7 +42,7 @@ defmodule WebSocket.EventsTest do
 
   test "broadcast!/2" do
     assert {:ok, _} = start_link(@ref)
-    assert join(@ref, self) == :ok
+    assert subscribe(@ref, self) == :ok
     assert broadcast!(@ref, {:text, "test"}) == :ok
     assert_receive {:text, "test"}
     assert stop(@ref) == :ok

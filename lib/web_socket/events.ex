@@ -1,8 +1,18 @@
 defmodule WebSocket.Events do
+  @moduledoc """
+  """
+
   use GenEvent
+
+  @type event :: {:add_client | :remove_client, pid}
+               | {:send, tuple, pid}
+  @type state :: [pid]
 
   ## Public API
 
+  @doc """
+  """
+  @spec start_link(atom) :: {:ok, pid}
   def start_link(ref) do
     case GenEvent.start_link(name: ref) do
       {:ok, pid} ->
@@ -10,33 +20,49 @@ defmodule WebSocket.Events do
         {:ok, pid}
       {:error, {:already_started, pid}} ->
         {:ok, pid}
-      otherwise ->
-        otherwise
     end
   end
 
-  def join(ref, pid) do
+  @doc """
+  """
+  @spec subscribe(atom, pid) :: :ok
+  def subscribe(ref, pid) do
     GenEvent.notify(ref, {:add_client, pid})
   end
 
-  def leave(ref, pid) do
+  @doc """
+  """
+  @spec unsubscribe(atom, pid) :: :ok
+  def unsubscribe(ref, pid) do
     GenEvent.notify(ref, {:remove_client, pid})
   end
 
+  @doc """
+  """
+  @spec broadcast(atom, tuple, pid | nil) :: :ok
   def broadcast(ref, event, originator) do
     GenEvent.notify(ref, {:send, event, originator})
   end
 
+  @doc """
+  """
+  @spec broadcast!(atom, tuple) :: :ok
   def broadcast!(ref, event) do
     broadcast(ref, event, nil)
   end
 
+  @doc """
+  """
+  @spec stop(atom) :: :ok
   def stop(ref) do
     GenEvent.stop(ref)
   end
 
   ## Callbacks
 
+  @doc """
+  """
+  @spec handle_event(event, state) :: {:ok, state}
   def handle_event({:add_client, pid}, clients) do
     {:ok, [pid|clients]}
   end
