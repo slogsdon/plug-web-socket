@@ -142,6 +142,9 @@ defmodule WebSocket.Cowboy.Handler do
     payload = get_payload(args, payload)
     {:reply, {opcode, payload}, req, state, :hibernate}
   end
+  defp do_handle_reply(req, _args, {:shutdown}) do
+    {:shutdown, req}
+  end
 
   defp update_scheme(%Plug.Conn{scheme: :http} = conn) do
     %{conn | scheme: :ws}
