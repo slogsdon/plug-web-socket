@@ -3,7 +3,7 @@ defmodule WebSocket.Mixfile do
 
   def project do
     [app: :web_socket,
-     version: "0.0.1",
+     version: "0.1.0",
      elixir: "~> 1.0",
      name: "WebSocket",
      source_url: "https://github.com/slogsdon/plug-web-socket",
@@ -11,7 +11,8 @@ defmodule WebSocket.Mixfile do
      deps: deps,
      package: package,
      description: description,
-     docs: [readme: "README.md", main: "README"],
+     docs: [extras: ["README.md"],
+	    main: "readme"],
      test_coverage: [tool: ExCoveralls]]
   end
 
@@ -20,13 +21,13 @@ defmodule WebSocket.Mixfile do
   end
 
   defp deps do
-    [{:plug, "~> 1.0.2"},
-     {:cowboy, "~> 1.0.2"},
-     {:poison, "~> 1.5.0"},
-     {:earmark, "~> 0.1.17", only: :docs},
-     {:ex_doc, "~> 0.7.3", only: :docs},
-     {:excoveralls, "~> 0.3.11", only: :test},
-     {:dialyze, "~> 0.2.0", only: :test}]
+    [{:plug, "~> 1.2"},
+     {:cowboy, "~> 1.0"},
+     {:poison, "~> 3.0"},
+     {:earmark, "~> 1.0", only: :dev},
+     {:ex_doc, "~> 0.14", only: :dev},
+     {:excoveralls, "~> 0.5", only: :test},
+     {:dialyze, "~> 0.2", only: :test}]
   end
 
   defp description do
@@ -36,7 +37,7 @@ defmodule WebSocket.Mixfile do
   end
 
   defp package do
-    %{contributors: ["Shane Logsdon"],
+    %{maintainers: ["Shane Logsdon"],
       files: ["lib", "priv", "mix.exs", "README.md", "LICENSE"],
       licenses: ["MIT"],
       links: %{"GitHub" => "https://github.com/slogsdon/plug-web-socket"}}
