@@ -7,7 +7,36 @@ defmodule WebSocket.Cowboy.Handler do
   alias WebSocket.Events
   alias WebSocket.Message
 
-  @type reply :: tuple
+  @type cowboy_response_data ::
+      binary
+    | maybe_improper_list(binary
+                        | maybe_improper_list(term, binary | [])
+                        | byte,
+                        binary | [])
+
+  @type cowboy_response_wrapper ::
+      :close
+    | :ping
+    | :pong
+    | {:binary, cowboy_response_data}
+    | {:close, cowboy_response_data}
+    | {:ping, cowboy_response_data}
+    | {:pong, cowboy_response_data}
+    | {:text, cowboy_response_data}
+    | {:close, 1..1114111, cowboy_response_data}
+
+  @type reply ::
+      {:ok, :cowboy_req.req, term}
+    | {:shutdown, :cowboy_req.req, term}
+    | {:ok, :cowboy_req.req, term, :hibernate}
+    | {:reply, cowboy_response_wrapper | [cowboy_response_wrapper], :cowboy_req.req, term}
+    | {:reply, cowboy_response_wrapper | [cowboy_response_wrapper], :cowboy_req.req, term, :hibernate}
+
+  @type init_reply ::
+      {:shutdown, :cowboy_req.req}
+    | {:ok, :cowboy_req.req, term}
+    | {:ok, :cowboy_req.req, term, :hibernate | timeout}
+    | {:ok, :cowboy_req.req, term, timeout, :hibernate}
 
   defmodule State do
     @moduledoc """
@@ -41,7 +70,7 @@ defmodule WebSocket.Cowboy.Handler do
 
   @doc """
   """
-  @spec websocket_init(atom, :cowboy_req.req, {atom, atom}) :: reply
+  @spec websocket_init(atom, :cowboy_req.req, {atom, atom}) :: init_reply
   def websocket_init(transport, req, opts) do
     state =
       req
