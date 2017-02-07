@@ -52,7 +52,7 @@ defmodule WebSocket do
       :ok
     end
     def handle("topic:" <> letter, state, data) do
-      payload = %{awesome: "blah #{letter}",
+      payload = %{awesome: "blah \#{letter}",
                   orig: data}
       {:reply, {:text, payload}, state}
     end

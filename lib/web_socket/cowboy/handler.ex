@@ -47,7 +47,7 @@ defmodule WebSocket.Cowboy.Handler do
       req
       |> @connection.conn(transport)
       |> build_state(opts)
-    Events.subscribe(state.action, self)
+    Events.subscribe(state.action, self())
     args = get_args(:init, state)
     handle_reply req, args, state
   end
@@ -58,7 +58,7 @@ defmodule WebSocket.Cowboy.Handler do
   """
   @spec websocket_handle(tuple, :cowboy_req.req, State.t) :: reply
   def websocket_handle({:text, msg} = event, req, state) do
-    Events.broadcast(state.action, event, self)
+    Events.broadcast(state.action, event, self())
     args = get_args(msg, state)
     handle_reply req, args, state
   end
@@ -73,7 +73,7 @@ defmodule WebSocket.Cowboy.Handler do
   """
   @spec websocket_info(tuple, :cowboy_req.req, State.t) :: reply
   def websocket_info({:timeout, _ref, msg} = event, req, state) do
-    Events.broadcast(state.action, event, self)
+    Events.broadcast(state.action, event, self())
     args = get_args(msg, state)
     handle_reply req, args, state
   end
@@ -93,7 +93,7 @@ defmodule WebSocket.Cowboy.Handler do
   """
   @spec websocket_terminate(atom | tuple, :cowboy_req.req, State.t) :: :ok
   def websocket_terminate(_reason, _req, state) do
-    Events.unsubscribe(state.action, self)
+    Events.unsubscribe(state.action, self())
     apply(state.plug, state.action, [:terminate, state])
   end
 
