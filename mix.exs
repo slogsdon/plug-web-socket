@@ -8,9 +8,9 @@ defmodule WebSocket.Mixfile do
      name: "WebSocket",
      source_url: "https://github.com/slogsdon/plug-web-socket",
      homepage_url: "https://github.com/slogsdon/plug-web-socket",
-     deps: deps,
-     package: package,
-     description: description,
+     deps: deps(),
+     package: package(),
+     description: description(),
      docs: [extras: ["README.md"],
 	    main: "readme"],
      test_coverage: [tool: ExCoveralls]]
@@ -26,6 +26,7 @@ defmodule WebSocket.Mixfile do
      {:poison, "~> 3.0"},
      {:earmark, "~> 1.0", only: :dev},
      {:ex_doc, "~> 0.14", only: :dev},
+     {:credo, "~> 0.5", only: [:dev, :test]},
      {:excoveralls, "~> 0.5", only: :test},
      {:dialyze, "~> 0.2", only: :test}]
   end

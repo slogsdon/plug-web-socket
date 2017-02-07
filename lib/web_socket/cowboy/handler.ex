@@ -29,7 +29,11 @@ defmodule WebSocket.Cowboy.Handler do
 
   @doc """
   """
-  @spec init(atom, :cowboy_req.req, {atom, atom}) :: {:upgrade, :protocol, :cowboy_websocket}
+  @spec init(atom,
+             :cowboy_req.req,
+             {atom, atom}) :: {:upgrade,
+                               :protocol,
+                               :cowboy_websocket}
   def init(_transport, _req, {_plug, action}) do
     {:ok, _pid} = Events.start_link(action)
     {:upgrade, :protocol, :cowboy_websocket}
@@ -39,7 +43,9 @@ defmodule WebSocket.Cowboy.Handler do
   """
   @spec websocket_init(atom, :cowboy_req.req, {atom, atom}) :: reply
   def websocket_init(transport, req, opts) do
-    state = @connection.conn(req, transport)
+    state =
+      req
+      |> @connection.conn(transport)
       |> build_state(opts)
     Events.subscribe(state.action, self)
     args = get_args(:init, state)

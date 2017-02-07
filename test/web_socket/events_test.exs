@@ -21,28 +21,28 @@ defmodule WebSocket.EventsTest do
 
   test "subscribe/2" do
     assert {:ok, _} = start_link(@ref)
-    assert subscribe(@ref, self) == :ok
+    assert subscribe(@ref, self()) == :ok
     assert stop(@ref) == :ok
   end
 
   test "unsubscribe/2" do
     assert {:ok, _} = start_link(@ref)
-    assert subscribe(@ref, self) == :ok
-    assert unsubscribe(@ref, self) == :ok
+    assert subscribe(@ref, self()) == :ok
+    assert unsubscribe(@ref, self()) == :ok
     assert stop(@ref) == :ok
   end
 
   test "broadcast/3" do
     assert {:ok, _} = start_link(@ref)
-    assert subscribe(@ref, self) == :ok
-    assert broadcast(@ref, {:text, "test"}, self) == :ok
+    assert subscribe(@ref, self()) == :ok
+    assert broadcast(@ref, {:text, "test"}, self()) == :ok
     refute_receive {:text, "test"}
     assert stop(@ref) == :ok
   end
 
   test "broadcast!/2" do
     assert {:ok, _} = start_link(@ref)
-    assert subscribe(@ref, self) == :ok
+    assert subscribe(@ref, self()) == :ok
     assert broadcast!(@ref, {:text, "test"}) == :ok
     assert_receive {:text, "test"}
     assert stop(@ref) == :ok
@@ -50,28 +50,28 @@ defmodule WebSocket.EventsTest do
 
   test "handle_event/2" do
     state = []
-    calculated = handle_event({:add_client, self}, state)
+    calculated = handle_event({:add_client, self()}, state)
 
     assert calculated |> elem(0) == :ok
     assert calculated |> elem(1) |> is_list
-    assert calculated |> elem(1) == [self|[]]
+    assert calculated |> elem(1) == [self()|[]]
 
     state = calculated |> elem(1)
     calculated = handle_event({:send, {:text, "test"}, nil}, state)
 
     assert calculated |> elem(0) == :ok
     assert calculated |> elem(1) |> is_list
-    assert calculated |> elem(1) == [self|[]]
+    assert calculated |> elem(1) == [self()|[]]
     assert_receive {:text, "test"}
 
-    calculated = handle_event({:send, {:text, "test"}, self}, state)
+    calculated = handle_event({:send, {:text, "test"}, self()}, state)
 
     assert calculated |> elem(0) == :ok
     assert calculated |> elem(1) |> is_list
-    assert calculated |> elem(1) == [self|[]]
+    assert calculated |> elem(1) == [self()|[]]
     refute_receive {:text, "test"}
 
-    calculated = handle_event({:remove_client, self}, state)
+    calculated = handle_event({:remove_client, self()}, state)
 
     assert calculated |> elem(0) == :ok
     assert calculated |> elem(1) |> is_list

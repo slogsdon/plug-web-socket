@@ -73,7 +73,9 @@ defmodule WebSocket.Events do
 
   def handle_event({:send, event, originator}, clients) do
     spawn fn ->
-      clients |> Enum.map(&(maybe_send(&1, originator, event)))
+      _ =
+        clients
+        |> Enum.map(&(maybe_send(&1, originator, event)))
     end
     {:ok, clients}
   end
