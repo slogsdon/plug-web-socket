@@ -23,14 +23,21 @@ defmodule WebSocket.Cowboy.Handler do
     | {:ping, cowboy_response_data}
     | {:pong, cowboy_response_data}
     | {:text, cowboy_response_data}
-    | {:close, 1..1114111, cowboy_response_data}
+    | {:close, 1..1_114_111, cowboy_response_data}
 
   @type reply ::
       {:ok, :cowboy_req.req, term}
     | {:shutdown, :cowboy_req.req, term}
     | {:ok, :cowboy_req.req, term, :hibernate}
-    | {:reply, cowboy_response_wrapper | [cowboy_response_wrapper], :cowboy_req.req, term}
-    | {:reply, cowboy_response_wrapper | [cowboy_response_wrapper], :cowboy_req.req, term, :hibernate}
+    | {:reply,
+       cowboy_response_wrapper | [cowboy_response_wrapper],
+       :cowboy_req.req,
+       term}
+    | {:reply,
+       cowboy_response_wrapper | [cowboy_response_wrapper],
+       :cowboy_req.req,
+       term,
+       :hibernate}
 
   @type init_reply ::
       {:shutdown, :cowboy_req.req}
