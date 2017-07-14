@@ -157,7 +157,7 @@ defmodule WebSocket.Cowboy.Handler do
   end
   defp get_args(message, %State{use_topics: true} = state) do
     case Poison.decode(message, as: Message) do
-      {:ok, mes} -> [mes.event, state, mes.data]
+      {:ok, mes} -> [mes["event"], state, mes["data"]]
       _          -> [message, state]
     end
   end
